@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { small } from '../responsive'
 
 const HeaderWrapper = styled.div`
   border-bottom: solid 1px gray;
@@ -18,7 +17,7 @@ const PageHeader = styled.header`
   justify-content: space-between;
   align-items: center;
   /* padding: 12px; */
-  max-width: 1152px;
+  max-width: 72rem;
 `
 
 const ImageWrapper = styled.div``
