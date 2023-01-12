@@ -4,7 +4,7 @@ import { FcGoogle } from 'react-icons/fc'
 import { toast } from 'react-toastify'
 import { auth, db, getDoc, setDoc, serverTimestamp, doc } from '../firebase'
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const Button = styled.button`
   width: 100%;
@@ -30,6 +30,8 @@ const Button = styled.button`
 
 const OAuth = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+
   const handleGoogleClick = async () => {
     try {
       const provider = new GoogleAuthProvider()
@@ -39,7 +41,7 @@ const OAuth = () => {
       // Check if user exist in collection before adding to db
       const docRef = doc(db, 'users', user.uid)
       const docSnap = await getDoc(docRef)
-      if (!docSnap.exists()) {
+      if (!docSnap.exists() || location.pathname === '/sign-in') {
         await setDoc(docRef, {
           name: user.displayName,
           email: user.email,
@@ -50,7 +52,11 @@ const OAuth = () => {
         return
       }
 
-      toast.success('Sign up successful!')
+      toast.success(
+        location.pathname === '/sign-in'
+          ? 'Sign in successful!'
+          : 'Sign up successful!',
+      )
       navigate('/')
     } catch (error) {
       toast.error('Could not authorize with Google')

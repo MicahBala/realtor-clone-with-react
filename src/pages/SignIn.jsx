@@ -2,8 +2,12 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { medium, small } from '../responsive'
 import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import OAuth from '../components/OAuth'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../firebase'
+import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 const Section = styled.section``
 
@@ -142,6 +146,7 @@ const HeaderText = styled.h1`
 `
 
 const SignIn = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
@@ -159,6 +164,25 @@ const SignIn = () => {
 
   const toggleShowPassword = () => {
     setShowPassword((prevState) => !prevState)
+  }
+
+  const handleSubmit = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      )
+
+      if (userCredential.user) {
+        toast.success('Sign in successful, redirecting...')
+        navigate('/')
+      } else {
+        toast.error('User not found, please sign up')
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   return (
@@ -227,7 +251,9 @@ const SignIn = () => {
               </TextSmall>
             </ForgotPasswordWrapper>
           </Form>
-          <Button type='submit'>Sign in</Button>
+          <Button type='submit' onClick={handleSubmit}>
+            Sign in
+          </Button>
           <HorizontalLine>
             <hr style={{ width: '45%' }} />
             <Text> OR </Text>
