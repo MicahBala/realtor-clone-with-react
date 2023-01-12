@@ -2,8 +2,12 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { medium, small } from '../responsive'
 import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth'
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { auth, db } from '../firebase'
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { toast } from 'react-toastify'
 
 const Section = styled.section``
 
@@ -148,6 +152,7 @@ const SignUp = () => {
     email: '',
     password: '',
   })
+  const navigate = useNavigate()
 
   const { email, password, name } = formData
 
@@ -160,6 +165,39 @@ const SignUp = () => {
 
   const toggleShowPassword = () => {
     setShowPassword((prevState) => !prevState)
+  }
+
+  const handleSubmit = async () => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      )
+
+      updateProfile(auth.currentUser, { displayName: name })
+
+      const user = userCredential.user
+      const submittedFormData = { ...formData }
+
+      delete submittedFormData.password
+      //
+      submittedFormData.timestamp = serverTimestamp()
+
+      /* 
+      1. Remove password
+      2. Add timestamp
+      3. Save modified formData to the database without the password
+      4. Save to database we created inside firebase.js, inside the users
+        collection, and with thesame id of the authentication id
+      5. Then navigate to home page
+      */
+      await setDoc(doc(db, 'users', user.uid), submittedFormData)
+      toast.success('Sign up successful!')
+      navigate('/')
+    } catch (error) {
+      toast.error('Something went wrong with the Registration!')
+    }
   }
 
   return (
@@ -235,7 +273,9 @@ const SignUp = () => {
               </TextSmall>
             </ForgotPasswordWrapper>
           </Form>
-          <Button type='submit'>Sign up</Button>
+          <Button type='submit' onClick={handleSubmit}>
+            Sign up
+          </Button>
           <HorizontalLine>
             <hr style={{ width: '45%' }} />
             <Text> OR </Text>
