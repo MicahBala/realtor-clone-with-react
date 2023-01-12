@@ -5,8 +5,7 @@ import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai'
 import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
-import { auth, db } from '../firebase'
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { auth, db, doc, serverTimestamp, setDoc } from '../firebase'
 import { toast } from 'react-toastify'
 
 const Section = styled.section``

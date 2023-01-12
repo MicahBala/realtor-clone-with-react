@@ -1,6 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
 import { FcGoogle } from 'react-icons/fc'
+import { toast } from 'react-toastify'
+import { auth, db, getDoc, setDoc, serverTimestamp, doc } from '../firebase'
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { useNavigate } from 'react-router-dom'
 
 const Button = styled.button`
   width: 100%;
@@ -25,8 +29,36 @@ const Button = styled.button`
 `
 
 const OAuth = () => {
+  const navigate = useNavigate()
+  const handleGoogleClick = async () => {
+    try {
+      const provider = new GoogleAuthProvider()
+      const result = await signInWithPopup(auth, provider)
+      const user = result.user
+
+      // Check if user exist in collection before adding to db
+      const docRef = doc(db, 'users', user.uid)
+      const docSnap = await getDoc(docRef)
+      if (!docSnap.exists()) {
+        await setDoc(docRef, {
+          name: user.displayName,
+          email: user.email,
+          timestamp: serverTimestamp(),
+        })
+      } else {
+        toast.error('User already exists! Sign in instead')
+        return
+      }
+
+      toast.success('Sign up successful!')
+      navigate('/')
+    } catch (error) {
+      toast.error('Could not authorize with Google')
+    }
+  }
+
   return (
-    <Button>
+    <Button onClick={handleGoogleClick}>
       <FcGoogle
         style={{
           backgroundColor: '#fff',
