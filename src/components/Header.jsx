@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../firebase'
 
 const HeaderWrapper = styled.div`
   border-bottom: solid 1px gray;
@@ -55,6 +57,18 @@ const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
+  const [pageState, setPageState] = useState('Sign in')
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setPageState('Profile')
+      } else {
+        setPageState('Sign in')
+      }
+    })
+  }, [auth])
+
   const pathMatchRoute = (route) => {
     if (route === location.pathname) {
       return true
@@ -85,11 +99,18 @@ const Header = () => {
             >
               Offers
             </ListItem>
+            {/*
+              The /profile page will direct anyone not signed in to 
+              the sign in page automatically
+            */}
             <ListItem
-              className={pathMatchRoute('/sign-in') && 'active'}
-              onClick={() => navigate('/sign-in')}
+              className={
+                (pathMatchRoute('/sign-in') || pathMatchRoute('/profile')) &&
+                'active'
+              }
+              onClick={() => navigate('/profile')}
             >
-              Sign in
+              {pageState}
             </ListItem>
           </List>
         </Menu>
