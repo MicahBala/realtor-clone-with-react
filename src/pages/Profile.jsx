@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { medium, small } from '../responsive'
 import { Link, useNavigate } from 'react-router-dom'
-import { auth } from '../firebase'
+import { auth, doc, db } from '../firebase'
 import { toast } from 'react-toastify'
+import { updateProfile } from 'firebase/auth'
+import { updateDoc } from 'firebase/firestore'
 
 const Section = styled.section`
   max-width: 72rem;
@@ -43,7 +45,7 @@ const Input = styled.input`
   border-radius: 0.25rem;
   border: solid 1px rgb(209, 213, 219);
   color: rgb(55, 65, 81);
-  background-color: #fff;
+  background-color: ${(props) => props.color};
   transition: 0.25s ease-in-out;
   margin-bottom: 1.5rem;
 
@@ -78,6 +80,7 @@ const Span = styled.span``
 
 const Profile = () => {
   const navigate = useNavigate()
+  const [editProfile, setEditProfile] = useState(false)
   const [formData, setFormData] = useState({
     name: auth.currentUser.displayName,
     email: auth.currentUser.email,
@@ -90,14 +93,59 @@ const Profile = () => {
     navigate('/')
     toast.info('Sign out successful!')
   }
+
+  const handleClick = () => {
+    editProfile && updateUserProfile()
+    setEditProfile((prevState) => !prevState)
+  }
+
+  const handleChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }))
+  }
+
+  const updateUserProfile = async () => {
+    try {
+      // Compare what is in database to what is on page  if there is a change
+      if (auth.currentUser.displayName !== name) {
+        // then update displayname in firebase authentication
+        await updateProfile(auth.currentUser, {
+          displayName: name,
+        })
+
+        // Then update same in the firestore db
+        const docRef = doc(db, 'users', auth.currentUser.uid)
+        await updateDoc(docRef, { name })
+      }
+      toast.success('Profile details updated')
+    } catch (error) {
+      toast.error('Could not update profile details')
+    }
+  }
+
   return (
     <>
       <Section>
         <Title>My Profile</Title>
         <FormWrapper>
           <Form>
-            <Input type='text' name='name' value={name} disabled />
-            <Input type='email' name='email' value={email} disabled />
+            <Input
+              type='text'
+              name='name'
+              value={name}
+              disabled={!editProfile}
+              onChange={handleChange}
+              color={editProfile ? '#f0d3d3' : '#fff'}
+            />
+            <Input
+              type='email'
+              name='email'
+              value={email}
+              disabled
+              color='#fff'
+            />
           </Form>
 
           <AuthWrapper>
@@ -111,8 +159,9 @@ const Profile = () => {
                   cursor: 'pointer',
                   textDecoration: 'none',
                 }}
+                onClick={handleClick}
               >
-                Edit
+                {editProfile ? 'Apply changes' : 'Edit'}
               </Span>
             </TextSmall>
             <TextSmall>
