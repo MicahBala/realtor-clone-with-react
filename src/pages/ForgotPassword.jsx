@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { medium, small } from '../responsive'
-import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai'
 import { Link } from 'react-router-dom'
 import OAuth from '../components/OAuth'
+import { toast } from 'react-toastify'
+import { auth } from '../firebase'
+import { sendPasswordResetEmail } from 'firebase/auth'
 
 const Section = styled.section``
 
@@ -146,7 +148,17 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('')
 
   const handleChange = (e) => {
-    setFormData(e.target.value)
+    setEmail(e.target.value)
+  }
+
+  const handleReset = async () => {
+    try {
+      await sendPasswordResetEmail(auth, email)
+      toast.success('Reset email has been sent successfully!')
+      setEmail('')
+    } catch (error) {
+      toast.error('Sory, could not reset password')
+    }
   }
 
   return (
@@ -199,7 +211,9 @@ const ForgotPassword = () => {
               </TextSmall>
             </ForgotPasswordWrapper>
           </Form>
-          <Button type='submit'>Send reset mail</Button>
+          <Button type='submit' onClick={handleReset}>
+            Send reset mail
+          </Button>
           <HorizontalLine>
             <hr style={{ width: '45%' }} />
             <Text> OR </Text>
