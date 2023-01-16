@@ -6,6 +6,7 @@ import { auth, doc, db } from '../firebase'
 import { toast } from 'react-toastify'
 import { updateProfile } from 'firebase/auth'
 import { updateDoc } from 'firebase/firestore'
+import { FcHome } from 'react-icons/fc'
 
 const Section = styled.section`
   max-width: 72rem;
@@ -13,6 +14,7 @@ const Section = styled.section`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  margin: 0 auto;
 `
 
 const Title = styled.h1`
@@ -77,6 +79,22 @@ const TextSmall = styled.small`
 `
 
 const Span = styled.span``
+
+const Button = styled.button`
+  width: 40%;
+  color: #fff;
+  background-color: #3b8ddd;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  padding: 0.75rem 1.75rem;
+  cursor: pointer;
+
+  ${medium({
+    width: '80%',
+  })};
+`
 
 const Profile = () => {
   const navigate = useNavigate()
@@ -179,6 +197,31 @@ const Profile = () => {
             </TextSmall>
           </AuthWrapper>
         </FormWrapper>
+
+        <Button type='submit'>
+          <Link
+            to='/create-listing'
+            style={{
+              textDecoration: 'none',
+              color: '#fff',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <FcHome
+              style={{
+                marginRight: '1rem',
+                fontSize: '1.875rem',
+                backgroundColor: '#d67c76',
+                borderRadius: '50%',
+                padding: '2px',
+                borderWidth: '2px',
+              }}
+            />{' '}
+            Sell or rent your home
+          </Link>
+        </Button>
       </Section>
     </>
   )
