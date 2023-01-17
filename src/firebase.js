@@ -6,8 +6,16 @@ import {
   doc,
   serverTimestamp,
   setDoc,
+  addDoc,
+  collection,
 } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBIskU91oCWUUMMMCwbsYsVor-5prUjj34',
@@ -24,4 +32,17 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 
-export { auth, db, getDoc, doc, serverTimestamp, setDoc }
+export {
+  auth,
+  db,
+  getDoc,
+  doc,
+  serverTimestamp,
+  setDoc,
+  getStorage,
+  addDoc,
+  collection,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+}

@@ -1,6 +1,21 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { small, medium } from '../responsive'
+import Spinner from '../components/Spinner'
+import { toast } from 'react-toastify'
+import {
+  auth,
+  serverTimestamp,
+  db,
+  addDoc,
+  collection,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from '../firebase'
+import { v4 as uuidv4 } from 'uuid'
+import { useNavigate } from 'react-router-dom'
 
 const Main = styled.main`
   max-width: 35%;
@@ -167,6 +182,8 @@ const BtnSubmit = styled.button`
 `
 
 const CreateListing = () => {
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     type: 'rent',
     name: '',
@@ -177,8 +194,9 @@ const CreateListing = () => {
     address: '',
     description: '',
     offer: false,
-    regularPrice: 0,
+    price: 0,
     discount: 0,
+    images: {},
   })
 
   const {
@@ -191,10 +209,117 @@ const CreateListing = () => {
     address,
     description,
     offer,
-    regularPrice,
+    price,
     discount,
+    images,
   } = formData
-  const onChange = () => {}
+
+  const onChange = (e) => {
+    let boolean = null
+
+    if (e.target.value === 'true') {
+      boolean = true
+    }
+
+    if (e.target.value === 'false') {
+      boolean = false
+    }
+
+    // For Files
+    if (e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        images: e.target.files,
+      }))
+    }
+
+    // For Text/Boolean/Number
+    if (!e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        [e.target.name]: boolean ?? e.target.value,
+      }))
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+
+    if (discount >= price) {
+      setLoading(false)
+      toast.error('Discounted price needs to be less than regular price')
+      return
+    }
+
+    if (images.length > 3) {
+      setLoading(false)
+      toast.error('Maximum of 3 images allowed')
+      return
+    }
+
+    const storeImage = async (image) => {
+      return new Promise((resolve, reject) => {
+        const storage = getStorage()
+        const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`
+        const storageRef = ref(storage, filename)
+        const uploadTask = uploadBytesResumable(storageRef, image)
+
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            console.log('Upload is ' + progress + '% done')
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused')
+                break
+              case 'running':
+                console.log('Upload is running')
+                break
+            }
+          },
+          (error) => {
+            reject(error)
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              resolve(downloadURL)
+            })
+          },
+        )
+      })
+    }
+
+    const imgUrls = await Promise.all(
+      [...images].map((img) => storeImage(img)),
+    ).catch((error) => {
+      setLoading(false)
+      toast.error('Images not uploaded')
+      return
+    })
+
+    // Now add to firestore db
+    const formDataCopy = {
+      ...formData,
+      imgUrls,
+      timestamp: serverTimestamp(),
+    }
+
+    delete formDataCopy.images
+    !formDataCopy.offer && delete formDataCopy.price
+
+    const docRef = await addDoc(collection(db, 'listings'), formDataCopy)
+    setLoading(false)
+    toast.success('Listing created')
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`)
+  }
+
+  if (loading) {
+    return <Spinner />
+  }
+
   return (
     <Main>
       <Title>Create a Listing</Title>
@@ -204,7 +329,7 @@ const CreateListing = () => {
           <Button
             style={{ marginRight: '1rem' }}
             type='button'
-            name='sale'
+            name='type'
             value='sale'
             color={type === 'sale' ? '#fff' : '#445469'}
             bg={type === 'sale' ? '#445469' : '#fff'}
@@ -216,8 +341,8 @@ const CreateListing = () => {
           <Button
             style={{ marginLeft: '1rem' }}
             type='button'
-            name='sale'
-            value='sale'
+            name='type'
+            value='rent'
             color={type === 'sale' ? '#445469' : '#fff'}
             bg={type === 'sale' ? '#fff' : '#445469'}
             onClick={onChange}
@@ -372,7 +497,7 @@ const CreateListing = () => {
             <SmallInput
               type='number'
               name='price'
-              value={regularPrice}
+              value={price}
               onChange={onChange}
               min='50'
               max='400000000'
@@ -427,7 +552,9 @@ const CreateListing = () => {
             required
           />
         </ImageUploadWrapper>
-        <BtnSubmit>Create Listing</BtnSubmit>
+        <BtnSubmit onClick={handleSubmit} type='submit'>
+          Create Listing
+        </BtnSubmit>
       </Form>
     </Main>
   )
