@@ -2,12 +2,16 @@
 import { initializeApp } from 'firebase/app'
 import {
   getFirestore,
+  getDocs,
   getDoc,
   doc,
   serverTimestamp,
   setDoc,
   addDoc,
   collection,
+  query,
+  orderBy,
+  where,
 } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import {
@@ -35,6 +39,7 @@ const db = getFirestore(app)
 export {
   auth,
   db,
+  getDocs,
   getDoc,
   doc,
   serverTimestamp,
@@ -45,4 +50,7 @@ export {
   ref,
   uploadBytesResumable,
   getDownloadURL,
+  query,
+  orderBy,
+  where,
 }

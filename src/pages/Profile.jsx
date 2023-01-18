@@ -1,12 +1,22 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { medium, small } from '../responsive'
 import { Link, useNavigate } from 'react-router-dom'
-import { auth, doc, db } from '../firebase'
+import {
+  auth,
+  doc,
+  getDocs,
+  db,
+  collection,
+  query,
+  orderBy,
+  where,
+} from '../firebase'
 import { toast } from 'react-toastify'
 import { updateProfile } from 'firebase/auth'
 import { updateDoc } from 'firebase/firestore'
 import { FcHome } from 'react-icons/fc'
+import ListingItem from '../components/ListingItem'
 
 const Section = styled.section`
   max-width: 72rem;
@@ -95,10 +105,25 @@ const Button = styled.button`
     width: '80%',
   })};
 `
+const TitleH2 = styled.h2`
+  font-weight: 600;
+  text-align: center;
+`
+const UnorderedList = styled.ul``
+
+const ListItem = styled.li``
+
+const ListingWrapper = styled.div`
+  max-width: 72rem;
+  padding: 1.5rem 0.75rem;
+  margin: 0 auto;
+`
 
 const Profile = () => {
   const navigate = useNavigate()
   const [editProfile, setEditProfile] = useState(false)
+  const [listings, setListings] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState({
     name: auth.currentUser.displayName,
     email: auth.currentUser.email,
@@ -142,6 +167,32 @@ const Profile = () => {
       toast.error('Could not update profile details')
     }
   }
+
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      const listingRef = collection(db, 'listings')
+      const q = query(
+        listingRef,
+        where('userRef', '==', auth.currentUser.uid),
+        orderBy('timestamp', 'desc'),
+      )
+
+      const querySnap = await getDocs(q)
+      let listings = []
+      querySnap.forEach((doc) => {
+        return listings.push({
+          id: doc.id,
+          data: doc.data(),
+        })
+      })
+
+      setListings(listings)
+      setLoading(false)
+    }
+
+    fetchUserListings()
+    console.log(listings)
+  }, [auth.currentUser.uid])
 
   return (
     <>
@@ -223,6 +274,23 @@ const Profile = () => {
           </Link>
         </Button>
       </Section>
+
+      <ListingWrapper>
+        {!loading && listings.length > 0 && (
+          <>
+            <TitleH2>My Listings</TitleH2>
+            <UnorderedList>
+              {listings.map((listing) => (
+                <ListingItem
+                  key={listing.id}
+                  id={listing.id}
+                  listing={listing.data}
+                />
+              ))}
+            </UnorderedList>
+          </>
+        )}
+      </ListingWrapper>
     </>
   )
 }
