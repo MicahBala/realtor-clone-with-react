@@ -108,10 +108,12 @@ const Button = styled.button`
 const TitleH2 = styled.h2`
   font-weight: 600;
   text-align: center;
+  margin: 1rem 0;
 `
-const UnorderedList = styled.ul``
-
-const ListItem = styled.li``
+const UnorderedList = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+`
 
 const ListingWrapper = styled.div`
   max-width: 72rem;

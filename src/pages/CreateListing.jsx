@@ -535,6 +535,7 @@ const CreateListing = () => {
                   required={offer}
                 />
               </SmallInputWrapper>
+              $/Month
             </InputWrapper>
           </>
         )}
