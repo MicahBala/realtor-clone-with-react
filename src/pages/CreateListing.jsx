@@ -309,7 +309,7 @@ const CreateListing = () => {
     }
 
     delete formDataCopy.images
-    !formDataCopy.offer && delete formDataCopy.price
+    !formDataCopy.offer && delete formDataCopy.discount
 
     const docRef = await addDoc(collection(db, 'listings'), formDataCopy)
     setLoading(false)

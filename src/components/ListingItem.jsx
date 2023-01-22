@@ -2,6 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import Moment from 'react-moment'
 import { MdLocationOn } from 'react-icons/md'
+import { FaTrash } from 'react-icons/fa'
+import { MdEdit } from 'react-icons/md'
 import styled from 'styled-components'
 import { medium, small } from '../responsive'
 
@@ -80,7 +82,7 @@ const TextName = styled.p`
   font-size: x-large;
 `
 
-const ListingItem = ({ listing, id }) => {
+const ListingItem = ({ listing, id, handleDelete, handleEdit }) => {
   return (
     <ListItem>
       <Link
@@ -111,12 +113,13 @@ const ListingItem = ({ listing, id }) => {
           </MapIcon>
           <TextName>{listing.name}</TextName>
           <TextOffer>
+            $
             {listing.offer
               ? listing.discount
                   .toString()
                   .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
               : listing.price}
-            {' $/ month'}
+            {listing.type === 'rent' && ' / month'}
           </TextOffer>
           <BedsWrapper>
             <Beds>
@@ -134,6 +137,30 @@ const ListingItem = ({ listing, id }) => {
           </BedsWrapper>
         </MapIconWrapper>
       </Link>
+
+      <FaTrash
+        style={{
+          position: 'absolute',
+          bottom: '1rem',
+          right: '1rem',
+          cursor: 'pointer',
+          color: 'red',
+          fontSize: '0.8rem',
+        }}
+        onClick={() => handleDelete(listing.id)}
+      />
+
+      <MdEdit
+        style={{
+          position: 'absolute',
+          bottom: '1rem',
+          right: '3rem',
+          cursor: 'pointer',
+          color: '#202020',
+          fontSize: '0.8rem',
+        }}
+        onClick={() => handleEdit(listing.id)}
+      />
     </ListItem>
   )
 }

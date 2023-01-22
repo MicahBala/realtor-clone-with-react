@@ -11,6 +11,7 @@ import {
   query,
   orderBy,
   where,
+  deleteDoc,
 } from '../firebase'
 import { toast } from 'react-toastify'
 import { updateProfile } from 'firebase/auth'
@@ -196,6 +197,24 @@ const Profile = () => {
     console.log(listings)
   }, [auth.currentUser.uid])
 
+  const handleDelete = async (listingId) => {
+    if (window.confirm('Are you sure you want to delete?')) {
+      await deleteDoc(doc(db, 'listings', listingId))
+
+      // Update the listing displayed
+      const updatedListing = listings.filter(
+        (listing) => listing.id !== listingId,
+      )
+
+      setListings(updatedListing)
+      toast.success('Successfully deleted the listing.')
+    }
+  }
+
+  const handleEdit = (listingId) => {
+    navigate(`/edit-listing/${listingId}`)
+  }
+
   return (
     <>
       <Section>
@@ -287,6 +306,8 @@ const Profile = () => {
                   key={listing.id}
                   id={listing.id}
                   listing={listing.data}
+                  handleDelete={() => handleDelete(listing.id)}
+                  handleEdit={() => handleEdit(listing.id)}
                 />
               ))}
             </UnorderedList>
