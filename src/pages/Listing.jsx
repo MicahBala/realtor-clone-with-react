@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { FaShare } from 'react-icons/fa'
 import { useParams } from 'react-router-dom'
 import { doc, db, getDoc } from '../firebase'
 import Spinner from '../components/Spinner'
@@ -11,6 +12,7 @@ import SwiperCore, {
   Pagination,
 } from 'swiper'
 import 'swiper/css/bundle'
+import { limitToLast } from 'firebase/firestore'
 
 const Main = styled.main``
 
@@ -20,11 +22,24 @@ const SliderContent = styled.div`
   height: 300px;
   position: relative;
 `
+const Tooltip = styled.span`
+  background-color: #fff;
+  color: #000;
+  border: solid 1px #000;
+  padding: 1rem;
+  border-radius: 1rem;
+  font-weight: bolder;
+  position: absolute;
+  top: 22%;
+  right: 3%;
+  z-index: 10;
+`
 
 const Listing = () => {
   const params = useParams()
   const [listing, setListing] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [linkCopied, setLinkCopied] = useState(false)
   SwiperCore.use([Autoplay, Navigation, Pagination])
 
   useEffect(() => {
@@ -66,6 +81,31 @@ const Listing = () => {
           </SwiperSlide>
         ))}
       </Swiper>
+      <FaShare
+        style={{
+          position: 'fixed',
+          top: '13%',
+          right: '3%',
+          zIndex: '10',
+          cursor: 'pointer',
+          width: '3rem',
+          height: '3rem',
+          color: '#64748B',
+          backgroundColor: '#fff',
+          border: 'solid 2px #D3D3D3',
+          borderRadius: '50%',
+          padding: '0.8rem',
+        }}
+        onClick={() => {
+          navigator.clipboard.writeText(window.location.href)
+          setLinkCopied(true)
+
+          setTimeout(() => {
+            setLinkCopied(false)
+          }, 2000)
+        }}
+      />
+      {linkCopied && <Tooltip>Link Copied!</Tooltip>}
     </Main>
   )
 }
