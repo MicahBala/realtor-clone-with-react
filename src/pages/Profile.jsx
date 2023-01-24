@@ -194,7 +194,6 @@ const Profile = () => {
     }
 
     fetchUserListings()
-    console.log(listings)
   }, [auth.currentUser.uid])
 
   const handleDelete = async (listingId) => {
