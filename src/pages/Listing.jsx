@@ -299,7 +299,7 @@ const Listing = () => {
             />
             <Marker position={['9.5849', '8.2924']}>
               <Popup>
-                A pretty CSS3 popup. <br /> Easily customizable.
+                Kafanchan Town, <br /> Jema'a LGA.
               </Popup>
             </Marker>
           </MapContainer>
