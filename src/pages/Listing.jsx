@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { FaShare, FaBed, FaBath, FaParking } from 'react-icons/fa'
+import { BiChair } from 'react-icons/bi'
 import { MdLocationOn } from 'react-icons/md'
 import { useParams } from 'react-router-dom'
-import { doc, db, getDoc } from '../firebase'
+import { doc, db, getDoc, auth } from '../firebase'
 import Spinner from '../components/Spinner'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import SwiperCore, {
@@ -13,8 +14,8 @@ import SwiperCore, {
   Pagination,
 } from 'swiper'
 import 'swiper/css/bundle'
-import { limitToLast } from 'firebase/firestore'
 import { medium, small } from '../responsive'
+import ContactForm from '../components/ContactForm'
 
 const Main = styled.main``
 
@@ -58,26 +59,23 @@ const DetailWrapper = styled.div`
 
 const ListingDetail = styled.div`
   width: 100%;
-  height: 400px;
   width: 48%;
 
   ${medium({
     width: '100%',
-    height: '200px',
   })};
 `
 
 const MapDetail = styled.div`
   background-color: blue;
   width: 100%;
-  height: 400px;
+
   width: 48%;
   overflow-x: hidden;
   z-index: 10;
 
   ${medium({
     width: '100%',
-    height: '200px',
   })};
 `
 const Text = styled.p`
@@ -86,12 +84,15 @@ const Text = styled.p`
   margin-bottom: 0.5rem;
   color: #1e3a8a;
 `
+const ContactButton = styled.div``
 
 const Listing = () => {
   const params = useParams()
   const [listing, setListing] = useState(null)
   const [loading, setLoading] = useState(true)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [contactLandlord, setContactLandlord] = useState(false)
+
   SwiperCore.use([Autoplay, Navigation, Pagination])
 
   useEffect(() => {
@@ -183,19 +184,41 @@ const Listing = () => {
             <MdLocationOn style={{ fontSize: '1.2rem', color: '#42a535' }} />{' '}
             {listing.address}
           </p>
-          <p
+          <div
             style={{
-              fontWeight: 'bolder',
-              color: '#fff',
-              backgroundColor: '#991B1B',
-              width: '40%',
-              padding: '0.5rem 0',
-              textAlign: 'center',
-              borderRadius: '0.5rem',
+              display: 'flex',
             }}
           >
-            {listing.type === 'rent' ? 'For Rent' : 'For Sale'}
-          </p>
+            <p
+              style={{
+                fontWeight: 'bolder',
+                color: '#fff',
+                backgroundColor: '#991B1B',
+                width: '40%',
+                padding: '0.5rem 0',
+                textAlign: 'center',
+                borderRadius: '0.5rem',
+                marginRight: '1rem',
+              }}
+            >
+              {listing.type === 'rent' ? 'For Rent' : 'For Sale'}
+            </p>
+            <p
+              style={{
+                fontWeight: 'bolder',
+                color: '#fff',
+                backgroundColor: '#166534',
+                width: '40%',
+                padding: '0.5rem 0',
+                textAlign: 'center',
+                borderRadius: '0.5rem',
+              }}
+            >
+              {listing.offer && (
+                <span>${listing.price - listing.discount} discount</span>
+              )}
+            </p>
+          </div>
           <p
             style={{
               margin: '1.2rem 0',
@@ -236,23 +259,29 @@ const Listing = () => {
               <FaParking /> {listing.parking ? 'Parking' : 'No Parking'}
             </span>
             <span>
-              <FaParking /> {listing.furnished ? 'Furnished' : 'Not Furnished'}
+              <BiChair /> {listing.furnished ? 'Furnished' : 'Not Furnished'}
             </span>
           </div>
-          <div
-            style={{
-              backgroundColor: '#1D4ED8',
-              color: '#fff',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              padding: '0.8rem 0',
-              textAlign: 'center',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-            }}
-          >
-            Contact Landlord
-          </div>
+          {listing.userRef !== auth.currentUser?.uid && !contactLandlord && (
+            <ContactButton
+              style={{
+                backgroundColor: '#1D4ED8',
+                color: '#fff',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                padding: '0.8rem 0',
+                textAlign: 'center',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+              }}
+              onClick={() => setContactLandlord(true)}
+            >
+              Contact Landlord
+            </ContactButton>
+          )}
+          {contactLandlord && (
+            <ContactForm userRef={listing.userRef} listing={listing} />
+          )}
         </ListingDetail>
         <MapDetail></MapDetail>
       </DetailWrapper>
