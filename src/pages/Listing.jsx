@@ -16,6 +16,7 @@ import SwiperCore, {
 import 'swiper/css/bundle'
 import { medium, small } from '../responsive'
 import ContactForm from '../components/ContactForm'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 
 const Main = styled.main``
 
@@ -67,15 +68,15 @@ const ListingDetail = styled.div`
 `
 
 const MapDetail = styled.div`
-  background-color: blue;
   width: 100%;
-
   width: 48%;
   overflow-x: hidden;
   z-index: 10;
 
   ${medium({
     width: '100%',
+    height: '200px',
+    marginTop: '1.5rem',
   })};
 `
 const Text = styled.p`
@@ -112,6 +113,8 @@ const Listing = () => {
   if (loading) {
     return <Spinner />
   }
+  const lat = 9.5849
+  const lgt = 8.2924
 
   return (
     <Main>
@@ -283,7 +286,24 @@ const Listing = () => {
             <ContactForm userRef={listing.userRef} listing={listing} />
           )}
         </ListingDetail>
-        <MapDetail></MapDetail>
+        <MapDetail>
+          <MapContainer
+            center={['9.5849', '8.2924']}
+            zoom={13}
+            scrollWheelZoom={false}
+            style={{ height: '100%', width: '100%' }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            />
+            <Marker position={['9.5849', '8.2924']}>
+              <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+              </Popup>
+            </Marker>
+          </MapContainer>
+        </MapDetail>
       </DetailWrapper>
     </Main>
   )
