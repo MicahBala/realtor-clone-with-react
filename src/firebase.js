@@ -14,6 +14,7 @@ import {
   where,
   deleteDoc,
   updateDoc,
+  limit,
 } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import {
@@ -57,4 +58,5 @@ export {
   where,
   deleteDoc,
   updateDoc,
+  limit,
 }

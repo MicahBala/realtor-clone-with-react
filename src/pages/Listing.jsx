@@ -206,21 +206,22 @@ const Listing = () => {
             >
               {listing.type === 'rent' ? 'For Rent' : 'For Sale'}
             </p>
-            <p
-              style={{
-                fontWeight: 'bolder',
-                color: '#fff',
-                backgroundColor: '#166534',
-                width: '40%',
-                padding: '0.5rem 0',
-                textAlign: 'center',
-                borderRadius: '0.5rem',
-              }}
-            >
-              {listing.offer && (
+
+            {listing.offer && (
+              <p
+                style={{
+                  fontWeight: 'bolder',
+                  color: '#fff',
+                  backgroundColor: '#166534',
+                  width: '40%',
+                  padding: '0.5rem 0',
+                  textAlign: 'center',
+                  borderRadius: '0.5rem',
+                }}
+              >
                 <span>${listing.price - listing.discount} discount</span>
-              )}
-            </p>
+              </p>
+            )}
           </div>
           <p
             style={{
