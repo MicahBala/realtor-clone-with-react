@@ -13,6 +13,7 @@ import {
 import Spinner from '../components/Spinner'
 import ListingItem from '../components/ListingItem'
 import { startAfter } from 'firebase/firestore'
+import { useParams } from 'react-router-dom'
 
 const Wrapper = styled.div`
   max-width: 72rem;
@@ -39,10 +40,11 @@ const Button = styled.button`
   cursor: pointer;
 `
 
-const Offers = () => {
+const Category = () => {
   const [offerPagelistings, setOfferPagelistings] = useState(null)
   const [loading, setLoading] = useState(true)
   const [lastListing, setLastListing] = useState(null)
+  const params = useParams()
 
   useEffect(() => {
     const fetchOfferPageListings = async () => {
@@ -50,7 +52,7 @@ const Offers = () => {
         const listingRef = collection(db, 'listings')
         const q = query(
           listingRef,
-          where('offer', '==', true),
+          where('type', '==', params.categoryName),
           orderBy('timestamp', 'desc'),
           limit(4),
         )
@@ -73,14 +75,14 @@ const Offers = () => {
       }
     }
     fetchOfferPageListings()
-  }, [])
+  }, [params.categoryName])
 
   const fetchMoreListings = async () => {
     try {
       const listingRef = collection(db, 'listings')
       const q = query(
         listingRef,
-        where('offer', '==', true),
+        where('type', '==', params.categoryName),
         orderBy('timestamp', 'desc'),
         startAfter(lastListing),
         limit(4),
@@ -106,7 +108,9 @@ const Offers = () => {
 
   return (
     <Wrapper>
-      <HeadingText>Offers</HeadingText>
+      <HeadingText>
+        {params.categoryName === 'rent' ? 'Places for rent' : 'Places for sale'}
+      </HeadingText>
       {loading ? (
         <Spinner />
       ) : offerPagelistings.length > 0 ? (
@@ -141,4 +145,4 @@ const Offers = () => {
   )
 }
 
-export default Offers
+export default Category

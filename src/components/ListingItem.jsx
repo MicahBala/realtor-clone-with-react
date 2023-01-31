@@ -6,6 +6,8 @@ import { FaTrash } from 'react-icons/fa'
 import { MdEdit } from 'react-icons/md'
 import styled from 'styled-components'
 import { medium, small } from '../responsive'
+// import moment from 'moment'
+// moment().format()
 
 const ListItem = styled.li`
   position: relative;
@@ -106,6 +108,7 @@ const ListingItem = ({ listing, id, handleDelete, handleEdit }) => {
         >
           {listing.timstamp?.toDate()}
         </Moment>
+        {/* {moment(listing.timstamp?.toDate()).fromNow()} */}
         <MapIconWrapper>
           <MapIcon>
             <MdLocationOn style={{ fontSize: '1.2rem', color: '#42a535' }} />
@@ -138,29 +141,33 @@ const ListingItem = ({ listing, id, handleDelete, handleEdit }) => {
         </MapIconWrapper>
       </Link>
 
-      <FaTrash
-        style={{
-          position: 'absolute',
-          bottom: '1rem',
-          right: '1rem',
-          cursor: 'pointer',
-          color: 'red',
-          fontSize: '0.8rem',
-        }}
-        onClick={() => handleDelete(listing.id)}
-      />
+      {handleDelete && (
+        <FaTrash
+          style={{
+            position: 'absolute',
+            bottom: '1rem',
+            right: '1rem',
+            cursor: 'pointer',
+            color: 'red',
+            fontSize: '0.8rem',
+          }}
+          onClick={() => handleDelete(listing.id)}
+        />
+      )}
 
-      <MdEdit
-        style={{
-          position: 'absolute',
-          bottom: '1rem',
-          right: '3rem',
-          cursor: 'pointer',
-          color: '#202020',
-          fontSize: '0.8rem',
-        }}
-        onClick={() => handleEdit(listing.id)}
-      />
+      {handleEdit && (
+        <MdEdit
+          style={{
+            position: 'absolute',
+            bottom: '1rem',
+            right: '3rem',
+            cursor: 'pointer',
+            color: '#202020',
+            fontSize: '0.8rem',
+          }}
+          onClick={() => handleEdit(listing.id)}
+        />
+      )}
     </ListItem>
   )
 }

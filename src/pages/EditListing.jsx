@@ -218,7 +218,7 @@ const EditListing = () => {
 
   // use useParams hook to get the listing ID for the listing to edit
   const params = useParams()
-  // Fetch listine to edit
+  // Fetch listing to edit
   useEffect(() => {
     setLoading(true)
     const fetchListingToEdit = async () => {
